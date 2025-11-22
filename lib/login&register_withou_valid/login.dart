@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preference/Login/shared_home.dart';
+import 'package:shared_preference/login&register_withou_valid/home.dart';
+import 'package:shared_preference/login&register_withou_valid/registeration.dart';
+
 import 'package:shared_preferences/shared_preferences.dart';
 
-class SharedLogin extends StatefulWidget {
-  const SharedLogin({super.key});
+class Login_Shared extends StatefulWidget {
+  const Login_Shared({super.key});
 
   @override
-  State<SharedLogin> createState() => _SharedLoginState();
+  State<Login_Shared> createState() => _Login_SharedState();
 }
 
-class _SharedLoginState extends State<SharedLogin> {
-  // controller of each field
+class _Login_SharedState extends State<Login_Shared> {
   final uname_controller = TextEditingController();
   final pass_controller = TextEditingController();
 
@@ -23,16 +24,14 @@ class _SharedLoginState extends State<SharedLogin> {
     super.initState();
   }
 
-  // To check alredy logged In
-
   void checkTheUserIsAlreadyLoggedIn() async {
     preferences = await SharedPreferences.getInstance();
     isANewUser = preferences.getBool('newuser') ?? true;
-    //?? - is first statement is null second statement will execute
+
     if (isANewUser == false) {
       Navigator.of(
         context,
-      ).pushReplacement(MaterialPageRoute(builder: (context) => Home_shared()));
+      ).pushReplacement(MaterialPageRoute(builder: (context) => Home()));
     }
   }
 
@@ -40,16 +39,9 @@ class _SharedLoginState extends State<SharedLogin> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        title: const Text("Login Using Shared"),
+        backgroundColor: const Color.fromARGB(255, 8, 157, 144),
         centerTitle: true,
-        title: const Text(
-          "Login Using Shared",
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-            fontSize: 16,
-          ),
-        ),
-        backgroundColor: const Color.fromARGB(255, 1, 34, 31),
       ),
       body: Center(
         child: Column(
@@ -57,12 +49,10 @@ class _SharedLoginState extends State<SharedLogin> {
           children: [
             const Text(
               "Welcome Back",
-              style: TextStyle(
-                fontSize: 20,
-                color: Colors.black,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
+
+            // Username field
             Padding(
               padding: const EdgeInsets.all(10),
               child: TextField(
@@ -71,14 +61,17 @@ class _SharedLoginState extends State<SharedLogin> {
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  hintText: "UserName",
+                  hintText: "Email",
                 ),
               ),
             ),
+
+            // Password field
             Padding(
               padding: const EdgeInsets.all(10),
               child: TextField(
                 controller: pass_controller,
+                obscureText: true,
                 decoration: InputDecoration(
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
@@ -87,42 +80,53 @@ class _SharedLoginState extends State<SharedLogin> {
                 ),
               ),
             ),
+
+            // Login Button
             OutlinedButton(
               style: OutlinedButton.styleFrom(
                 backgroundColor: const Color.fromARGB(255, 1, 34, 31),
               ),
               onPressed: () async {
-                // future
-
                 preferences = await SharedPreferences.getInstance();
-                String email = uname_controller.text; // read email
-                String pwd = pass_controller.text; // read pwd
 
-                /// condition if email not equal to empty and pasword not equal to empty
-                /// save to shared preference = email and password setString
+                String inputEmail = uname_controller.text;
+                String inputPwd = pass_controller.text;
 
-                if (email != "" && pwd != "") {
-                  preferences.setString(
-                    "Email",
-                    email,
-                  ); // direct can we give uname_controller.text
-                  preferences.setString("Pass", pwd); // pass_controller.text
+                /// Read REGISTERED values
+                String savedEmail = preferences.getString("reg_email") ?? "";
+                String savedPass = preferences.getString("reg_pass") ?? "";
+
+                if (inputEmail == savedEmail && inputPwd == savedPass) {
                   preferences.setBool("newuser", false);
-                  Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(builder: (context) => Home_shared()),
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => Home()),
                   );
-                  uname_controller.text = ""; // clear the field
-                  pass_controller.text = "";
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text("Please fill all the Fields")),
+                    SnackBar(content: Text("Invalid Credentials")),
                   );
                 }
               },
               child: const Text(
                 "Login Here",
-                style: TextStyle(fontSize: 14, color: Colors.white),
+                style: TextStyle(color: Colors.white),
               ),
+            ),
+
+            const SizedBox(height: 10),
+
+            // Register button
+            TextButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const Register_shared(),
+                  ),
+                );
+              },
+              child: const Text("New User? Register Here"),
             ),
           ],
         ),
